@@ -1,0 +1,41 @@
+# --- Laravel Core ---
+/node_modules
+/vendor
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/*.log
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+.phpunit.cache
+
+# --- Configuration & Auth ---
+Homestead.json
+Homestead.yaml
+auth.json
+
+# --- Logs & Debugging ---
+npm-debug.log
+yarn-error.log
+.php_cs.cache
+.php-cs-fixer.cache
+
+# --- IDEs & Editors ---
+/.fleet
+/.idea
+/.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Operating Systems ---
+.DS_Store
+Thumbs.db
+
+# --- Docker / Laravel Sail ---
+.sauce/
