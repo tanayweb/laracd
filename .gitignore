@@ -6,9 +6,6 @@
 /public/storage
 /storage/*.key
 /storage/*.log
-.env
-.env.backup
-.env.production
 .phpunit.result.cache
 .phpunit.cache
 
