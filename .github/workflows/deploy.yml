@@ -18,8 +18,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-          # Avoid host key verification prompt
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
@@ -31,14 +29,32 @@ jobs:
 
       - name: Deploy files to EC2
         run: |
+          # The --exclude flags ensure vendor and storage are NOT deleted on the server
           rsync -avz --delete \
+            --exclude='vendor/' \
+            --exclude='node_modules/' \
+            --exclude='.env' \
+            --exclude='storage/logs/' \
+            --exclude='storage/framework/' \
+            --exclude='bootstrap/cache/' \
             -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
             ./ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/html/
 
-      - name: Fix permissions
+      - name: Remote Commands (Permissions & Composer)
         run: |
           ssh -i ~/.ssh/id_rsa \
               -o StrictHostKeyChecking=no \
               ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-              "sudo chown -R ubuntu:ubuntu /var/www/html && ls -la /var/www/html"
+              "cd /var/www/html && \
+               # 1. Fix ownership (ubuntu for you, www-data for the web server)
+               sudo chown -R ubuntu:www-data . && \
+               # 2. Fix directory and file permissions
+               sudo find . -type d -exec chmod 775 {} \; && \
+               sudo find . -type f -exec chmod 664 {} \; && \
+               # 3. Ensure Laravel can write to these specific folders
+               sudo chmod -R ug+rwx storage bootstrap/cache && \
+               # 4. Install dependencies (if any new ones were added)
+               composer install --no-dev --optimize-autoloader && \
+               # 5. Clear old cache to prevent errors
+               php artisan optimize:clear"
