@@ -36,3 +36,7 @@ Thumbs.db
 
 # --- Docker / Laravel Sail ---
 .sauce/
+
+# --- Misc ---
+.env
+.env.backup
